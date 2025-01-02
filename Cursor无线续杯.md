@@ -37,3 +37,15 @@
 > 在@前面加任意数字,继续登录然后回到无限邮接收验证码
 
 ![image-20241030152435852](C:/Users/MAH/AppData/Roaming/Typora/typora-user-images/image-20241030152435852.png)
+
+cmd运行下面命令
+
+```bash
+python change_cursor_id.py
+```
+
+
+
+
+
+![image-20250102162033802](https://gitee.com/ActonT/pic-go_img/raw/master/image-20250102162033802.png)
