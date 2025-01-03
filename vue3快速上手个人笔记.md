@@ -1133,3 +1133,193 @@ window.nested.obj.prop = 456; // 触发监视
 </script>
 ```
 
+## watchEffect
+
+`watchEffect`会全自动的监视不会去指定,会便捷很多
+
+```vue
+<script lang="ts" setup>
+import { ref, reactive, watch, watchEffect } from 'vue';
+// 按钮禁用
+const isDisabled1 = ref(false)
+const isDisabled2 = ref(false)
+
+// 数据
+
+const temp = ref(10)
+const height = ref(0)
+
+// 方法
+
+const changeTemp = () => {
+  temp.value += 10
+}
+const changeHeight = () => {
+  height.value += 10
+}
+
+// 监视
+// watch(() => [temp.value, height.value], (value) => {
+//   const [newTemp, newHeight] = value
+//   let alertMessage = '';
+//   if (newTemp >= 60) {
+//     alertMessage += `水温报警:${temp.value}℃`
+//     isDisabled1.value = true
+//     console.log(alertMessage + '给服务器发送数据')
+//   }
+//   if (newHeight >= 80) {
+//     alertMessage += `水位报警:${height.value}℃`
+//     isDisabled2.value = true
+//     console.log(alertMessage + '给服务器发送数据')
+//   }
+//   if (!alertMessage) {
+//     console.log('一切正常');
+//   }
+// });
+
+// watchEffect
+watchEffect(() => {
+  if (temp.value >= 60 || height.value >= 80) {
+    console.log('警报')
+  }
+})
+
+</script>
+
+
+<template>
+  <div class="person">
+    <h2>需求:当水温达到60度,或水位达到80cm时,给服务器发送请求</h2>
+    <h2>当前水温:{{ temp }}℃</h2>
+    <h2>当前水位: {{ height }}cm</h2>
+    <button :disabled="isDisabled1" @click="changeTemp">水温+10</button>
+    <button :disabled="isDisabled2" @click="changeHeight">水位+10</button>
+  </div>
+</template>
+
+<style scoped>
+.person {
+  background-color: skyblue;
+  box-shadow: 0 0 10px;
+  border-radius: 10px;
+  padding: 20px;
+}
+
+button {
+  margin: 5px;
+}
+</style>
+```
+
+## 标签的ref属性
+
+> * 用在普通 `DOM` 标签上，获取的是 `DOM` 节点。
+>
+> * 用在组件标签上，获取的是组件实例对象。
+
+### 错误例子
+
+错误例子:`person`
+
+```vue
+<script lang="ts" setup>
+import { ref } from 'vue';
+
+//按钮
+const showLog = () => {
+  console.log(document.getElementById('title2'))
+}
+</script>
+
+<template>
+  <div class="person">
+    <h1>中国</h1>
+    <h2 id="title2">北京</h2>
+    <h3>AhNan</h3>
+    <button @click="showLog">点击输出元素</button>
+  </div>
+</template>
+```
+
+> `console.log(document.getElementById('title2'))`:调用浏览器里的js,进行获取`DOM`元素,然后`console.log`打印到控制台
+
+错误例子:`App.vue`
+
+```vue
+<template>
+  <h2>你好</h2>
+  <Person />
+</template>
+
+
+<script lang="ts" setup>
+import Person from './components/Person.vue';
+</script>
+
+```
+
+> 这样子会导致,`App.vue`先比`person`优先显示
+
+### 正确例子
+
+> 需要先创建`title2`的容器用于存储`ref`标记的内容
+
+正确例子:`person` 
+
+```vue
+<script lang="ts" setup>
+import { ref } from 'vue';
+
+//按钮
+const showLog = () => {
+  console.log(document.getElementById('title2'))
+}
+//创建一个title2,用于存储ref标记的内容
+const title2 = ref()
+
+</script>
+
+
+<template>
+  <div class="person">
+    <h1>中国</h1>
+    <h2 ref="title2">北京</h2>
+    <h3>AhNan</h3>
+    <button @click="showLog">点击输出元素</button>
+  </div>
+</template>
+```
+
+
+
+正确例子:`App.vue`
+
+```vue
+<script lang="ts" setup>
+import { ref } from 'vue';
+
+//按钮
+const showLog = () => {
+  console.log(title2.value)
+}
+//创建一个title2,用于存储ref标记的内容
+const title2 = ref()
+
+</script>
+
+
+<template>
+  <div class="person">
+    <h1>中国</h1>
+    <h2 ref="title2">北京</h2>
+    <h3>AhNan</h3>
+    <button @click="showLog">点击输出元素</button>
+  </div>
+</template>
+```
+
+![image-20250103165306769](https://gitee.com/ActonT/pic-go_img/raw/master/image-20250103165306769.png)
+
+**下面为局部样式**: 
+
+![image-20250103165420127](https://gitee.com/ActonT/pic-go_img/raw/master/image-20250103165420127.png)
