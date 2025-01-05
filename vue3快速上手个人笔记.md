@@ -1133,7 +1133,7 @@ window.nested.obj.prop = 456; // 触发监视
 </script>
 ```
 
-## watchEffect
+## 12.watchEffect
 
 `watchEffect`会全自动的监视不会去指定,会便捷很多
 
@@ -1211,13 +1211,13 @@ button {
 </style>
 ```
 
-## 标签的ref属性
+## 13.标签的ref属性
 
-> * 用在普通 `DOM` 标签上，获取的是 `DOM` 节点。
+> - 用在普通 `DOM` 标签上，获取的是 `DOM` 节点。
 >
-> * 用在组件标签上，获取的是组件实例对象。
+> - 用在组件标签上，获取的是组件实例对象。
 
-### 错误例子
+### 13.1错误例子
 
 错误例子:`person`
 
@@ -1260,7 +1260,7 @@ import Person from './components/Person.vue';
 
 > 这样子会导致,`App.vue`先比`person`优先显示
 
-### 正确例子
+### 13.2正确例子
 
 > 需要先创建`title2`的容器用于存储`ref`标记的内容
 
@@ -1323,3 +1323,73 @@ const title2 = ref()
 **下面为局部样式**: 
 
 ![image-20250103165420127](https://gitee.com/ActonT/pic-go_img/raw/master/image-20250103165420127.png)
+
+## 14.回顾Ts中的接口,泛型,自定义类型
+
+1. 先在`src`目录下建立一个`types`代表跟种各样的类型都在里面,本次的ts也不例外
+
+2. > 在 TypeScript 中**，`import { type PersonInter } from '@types';`** 中的 **`type`** 关键字是一个 TypeScript 的语法，用于明确表示你只是在导入一个类型声明，而不是一个值或其他内容。
+
+3. 当代码里出现了,跟接口定义的不一致时,ts的作用就会出来了,会进行报错,逼着你去进行检查,看是否跟对应的接口一样的
+
+   当出现下面的问题你就要去修改,不然不能运行
+
+   ![image-20250105201348596](https://gitee.com/ActonT/pic-go_img/raw/master/image-20250105201348596.png)
+
+   下面为接口`index.ts`定义的内容
+
+   ![image-20250105201543106](https://gitee.com/ActonT/pic-go_img/raw/master/image-20250105201543106.png)
+
+### 14.1泛型
+
+这里的ts泛型是指,当我们定义的一个不是ts接口的类型,比如定义成了对象等等,然后我又需要使用这个ts接口,如下代码 :
+
+```ts
+// 定义一个接口用于显示person 对象的具体属性
+export interface PersonInter {
+  id: string;
+  name: string;
+  age: number;
+}
+// 下面我还想用上面的ts定义的接口,这里`person`会直接进行报错如图1
+// 明显的表示了[]数组类型缺少了
+const person: PersonInter = [
+  { id: 'asyud6asfd01', name: '张三', age: 60 },
+  { id: 'asyud6asfd02', name: '李四', age: 60 },
+  { id: 'asyud6asfd03', name: '王五', age: 60 },
+  { id: 'asyud6asfd04', name: '超四', age: 60 },
+]
+```
+
+![图1](https://gitee.com/ActonT/pic-go_img/raw/master/image-20250105202833098.png)
+
+> 如果你哪天使用了数组但是你又忘记了接口定义的有没有这个数组,就需要加一个泛型,让他由 `PersonInter` 类型对象组成的数组写法如下:
+
+```ts
+const person: Array<PersonInter> = [
+  { id: 'asyud6asfd01', name: '张三', age: 60 },
+  { id: 'asyud6asfd02', name: '李四', age: 60 },
+  { id: 'asyud6asfd03', name: '王五', age: 60 },
+  { id: 'asyud6asfd04', name: '超四', age: 60 },
+]
+// 这样就不会报错了
+```
+
+**这里的 `PersonInter[]` 是 `Array<PersonInter>` 的简写，功能完全相同**。
+
+### 14.2**自定义类型**
+
+这里我们也可以改为自定义类型,先在ts文件里面写入 **`export type Persons = PersonInter[];`**
+
+这样在`vue`文件里就不需要进行更改了直接使用`Persons`这样也可以调用到该接口
+
+```ts
+const person: Persons = [
+  { id: 'asyud6asfd01', name: '张三', age: 60 },
+  { id: 'asyud6asfd02', name: '李四', age: 60 },
+  { id: 'asyud6asfd03', name: '王五', age: 60 },
+  { id: 'asyud6asfd04', name: '超四', age: 60 },
+]
+```
+
+## 15.props 的便用
