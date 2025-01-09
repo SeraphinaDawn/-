@@ -1393,3 +1393,296 @@ const person: Persons = [
 ```
 
 ## 15.props 的便用
+
+如果这里需要子父级传值,且又需要传响应式数据,子父级推荐使用`reactive<persons>`这个代表响应式直接传泛型
+
+### 泛型传值
+
+**代码如下**:
+
+**子级**:
+
+```vue
+<script lang="ts" setup>
+import { ref } from 'vue';
+
+</script>
+
+
+<template>
+  <div class="person">
+    ???
+  </div>
+</template>
+
+<style scoped>
+.person {
+  background-color: skyblue;
+  box-shadow: 0 0 10px;
+  border-radius: 10px;
+  padding: 20px;
+}
+
+button {
+  margin: 5px;
+}
+</style>
+```
+
+**父级**:
+
+```vue
+<template>
+
+  <Person />
+</template>
+
+
+<script lang="ts" setup>
+import { reactive } from 'vue';
+import Person from './components/Person.vue';
+import type { Persons } from './types';
+
+// 一堆人
+const personList = reactive<Persons>([
+  { id: 'asudfysafd01', name: '张三', age: 18 },
+  { id: 'asudfysafd02', name: '李四', age: 13 },
+  { id: 'asudfysafd03', name: '王五', age: 22 }
+])
+</script>
+```
+
+> 使用了`reactive<Persons>`这个来直接传泛型
+
+### **小插曲**
+
+> 如果我们想在随机一行添加一个值比如在下面添加一个值
+>
+> ```js
+>   { id: 'asudfysafd03', name: '王五', age: 22, x:99}
+> ```
+>
+> 这样的话我们需要在`index.ts`里面添加一个类型如下
+>
+> ```ts
+> export interface PersonInter {
+>   id: string;
+>   name: string;
+>   age: number;
+>   x?: number;
+> }
+> ```
+>
+> 如果不写问号,只能每个都写`x`值,写了问号就可以随机指定一个添加`x`值
+
+**父级传子级**:
+
+> 这里父传子,只需要在`<Person />`里写东西就好
+> 但是注意:
+> 在子级里面这个传的值有可能是以下几种类型`computed`,`ref,reactive`
+>
+> ​	因为这里,用普通的方法是查看不到里面的类型的
+>
+> ![image-20250109123445997](https://gitee.com/ActonT/pic-go_img/raw/master/image-20250109123445997.png)
+>
+> ​	直接打印传值的`a`会报错的,因为直接打印是让控制台去寻找`a`这个变量,但是`a`这个比赛变量,而是一个传值
+>
+> ​	![image-20250109123836487](https://gitee.com/ActonT/pic-go_img/raw/master/image-20250109123836487.png)
+>
+> 如果想查看的话需要将`defineProps(['a', 'b'])`储存为一个变量,从而去查看他,这样就可以看到控制台是返回一个对象的,并且返回传值`a`里的所有东西
+>
+> ![image-20250109125359648](https://gitee.com/ActonT/pic-go_img/raw/master/image-20250109125359648.png)
+
+**代码如下**:
+
+```vue
+<script lang="ts" setup>
+import { defineProps, ref } from 'vue';
+
+// 接收a
+// defineProps(['a'])
+
+// 接收a并保存props
+const x = defineProps(['a', 'b'])
+console.log(x);
+// 如果想要只想要单独a的信息只需要x.a
+console.log(x.a);
+
+</script>
+
+
+<template>
+  <div class="person">
+    {{ a }}
+  </div>
+</template>
+
+<style scoped>
+.person {
+  background-color: skyblue;
+  box-shadow: 0 0 10px;
+  border-radius: 10px;
+  padding: 20px;
+}
+
+button {
+  margin: 5px;
+}
+</style>
+```
+
+### 泛型传值代码
+
+**子级**:接收父级
+
+```vue
+<script lang="ts" setup>
+import { defineProps, ref } from 'vue';
+
+// 只接收list
+defineProps(['lists'])
+
+// // 接收a并保存props
+// const x = defineProps(['lists'])
+// console.log(x);
+
+</script>
+
+
+<template>
+  <div class="person">
+    <ul>
+      <li v-for="list in lists" :key="list.id">
+        {{ list.name }}--- {{ list.age }}
+
+      </li>
+
+    </ul>
+  </div>
+</template>
+
+<style scoped>
+.person {
+  background-color: skyblue;
+  box-shadow: 0 0 10px;
+  border-radius: 10px;
+  padding: 20px;
+}
+
+button {
+  margin: 5px;
+}
+</style>
+```
+
+> 这里要用`v-for`来进行父级的接收,因为是一个数组,不用`v-for`接收的会是如下内容
+>
+> ![image-20250109134600469](https://gitee.com/ActonT/pic-go_img/raw/master/image-20250109134600469.png)
+>
+> 使用`v-for`的效果![image-20250109134636025](https://gitee.com/ActonT/pic-go_img/raw/master/image-20250109134636025.png)
+>
+> 
+
+
+
+**父级**:
+
+```vue
+<template>
+  <Person :lists="personList" />
+</template>
+
+
+<script lang="ts" setup>
+import { reactive } from 'vue';
+import Person from './components/Person.vue';
+import type { Persons } from './types';
+
+// 一堆人
+const personList = reactive<Persons>([
+  { id: 'asudfysafd01', name: '张三', age: 18 },
+  { id: 'asudfysafd02', name: '李四', age: 13 },
+  { id: 'asudfysafd03', name: '王五', age: 22 }
+])
+</script>
+```
+
+### 接收规范的传值
+
+上面的语法是只接收`lists`,这里会有一个错误,当`父级`传错了东西给`子级`就会有错误,不管传什么都直接`v-for`遍历出来,这个是不对的
+下面就是进改进,限制`父级`必须传`index`的类型给`子级`
+
+> 在`子级`里写入**<span style="color:#FF3333;">`import { type Persons } from '@/types';`</span>**,接收类型改为下面的
+>
+> ```js
+> // 接收lists+限制类型
+> defineProps<{ lists: Persons }>()
+> ```
+>
+> ![image-20250109142231236](https://gitee.com/ActonT/pic-go_img/raw/master/image-20250109142231236.png)
+>
+> 可以看到当`父级`,`:lists= "5"`传的东西是`5`时,就会直接报错,因为里`5`根本不符合`index`里的类型
+
+#### 父级可传可不传
+
+如何实现当`父级`传一个没有的值时,`子级`进行自动判断呢?**`defineProps<{ lists?: Persons }>()`**,只需要在`lists`后面添加一个`?`
+
+就可以实现![image-20250109154140033](https://gitee.com/ActonT/pic-go_img/raw/master/image-20250109154140033.png)
+
+#### 当父级不传时设置默认值
+
+> 这里父级如上没有传递,子级可以写默认值,需要导入 <span style="color:#FF3333;">**`withDefaults`**</span>包裹`defineProps<{ lists?: Persons }>()`,后写默认值
+>
+> 语法格式 `withDefaults(defineProps<{ lists?: Persons }>(),默认值)`
+>
+> 这里默认值要写成返回的函数
+>
+> ```ts
+> withDefaults(defineProps<{ lists?: Persons }>(), {
+>   lists: () => [{ id: "ausydagyu01", name: "康师傅", age: 19 }]
+> })
+> ```
+
+
+
+#### v-for语法
+
+##### 1. 不带索引（不需要索引时）
+
+```vue
+<li v-for="item in items" :key="item.id">
+  {{ item.name }}
+</li>
+```
+
+- **`item`**: 当前元素值
+- **`:key="item.id"`**: 使用唯一标识符 `id`，确保每个元素的 `key` 是唯一的。
+
+------
+
+##### 2. 带索引（需要索引时）
+
+```vue
+<li v-for="(item, index) in items" :key="item.id">
+  {{ index }}: {{ item.name }}
+</li>
+```
+
+- **`item`**: 当前元素值
+- **`index`**: 当前元素的索引
+- **`:key="item.id"`**: 使用唯一标识符 `id`，避免直接用 `index` 作为 `key`。
+
+------
+
+##### 总结
+
+- **不带索引**：`v-for="item in items"`，只获取元素值。
+- **带索引**：`v-for="(item, index) in items"`，同时获取元素值和索引。
+- **`key` 规范**：始终使用唯一标识符（如 `item.id`），避免直接用对象或索引作为 `key`。
+
+### 最后小结
+
+`defineProps` 不需要引入,直接就可以使用的,因为在`vue3`里`defineProps `是宏函数
+
+## 16.生命周期钩子
+
